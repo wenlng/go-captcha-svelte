@@ -1,3 +1,9 @@
+/**
+ * @Author Awen
+ * @Date 2024/06/01
+ * @Email wengaolng@gmail.com
+ **/
+
 import type {ClickData, ClickDot, ClickEvent} from "../types/click";
 import {getDomXY} from "../helper/helper";
 import {writable, get} from 'svelte/store';

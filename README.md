@@ -1,5 +1,10 @@
 # Go Captcha Svelte Package
 
+<p> ⭐️ If it helps you, please give a star.</p>
+<img src="http://47.104.180.148/go-captcha/go-captcha-v2.jpg" alt="Poster">
+
+<br/>
+
 ## Install
 ```shell
 yarn add go-captcha-svelte
@@ -198,3 +203,13 @@ export interface ButtonConfig {
   horizontalPadding?: number;
 }
 ```
+
+<br/>
+
+## 🍹 Buy me a coffee
+<div>
+<a href="http://witkeycode.com/sponsor" target="_blank"><img src="http://47.104.180.148/payment-code/wxpay.png" alt="Buy Me A Coffee" style="width: 217px !important;" ></a>
+<a href="http://witkeycode.com/sponsor" target="_blank"><img src="http://47.104.180.148/payment-code/alipay.png" alt="Buy Me A Coffee" style="width: 217px !important;" ></a>
+</div>
+
+<br/>

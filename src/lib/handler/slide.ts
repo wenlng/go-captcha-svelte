@@ -1,3 +1,9 @@
+/**
+ * @Author Awen
+ * @Date 2024/06/01
+ * @Email wengaolng@gmail.com
+ **/
+
 import type {SlideData, SlideEvent} from "../types/slide";
 import {checkTargetFather} from "../helper/helper";
 import {writable, get} from 'svelte/store';

@@ -18,7 +18,7 @@
 
   const hPadding = config.horizontalPadding || 0
   const vPadding = config.verticalPadding || 0
-  const width = (config.width || 0) + ( hPadding * 2)
+  const width = (config.width || 0) + ( hPadding * 2) + (config.showTheme ? 2 : 0)
 
   $: wrapperClass = config.showTheme ? 'gc-theme' : ''
   $: wrapperStyle = `width: ${width}px; padding: ${vPadding}px ${hPadding}px;`
@@ -84,7 +84,6 @@
         justify-content: center;
         border-radius: 20px;
         cursor: default;
-        font-weight: 600;
       }
     }
   }

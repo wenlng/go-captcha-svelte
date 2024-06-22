@@ -1,3 +1,9 @@
+/**
+ * @Author Awen
+ * @Date 2024/06/01
+ * @Email wengaolng@gmail.com
+ **/
+
 import type {SlideRegionData, SlideRegionEvent} from "../types/slide-region";
 import {checkTargetFather} from "../helper/helper";
 import {writable, get} from 'svelte/store';

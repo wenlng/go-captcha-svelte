@@ -1,3 +1,9 @@
+/**
+ * @Author Awen
+ * @Date 2024/06/01
+ * @Email wengaolng@gmail.com
+ **/
+
 import './gocaptcha.less'
 
 import Click from "./components/Click.svelte"

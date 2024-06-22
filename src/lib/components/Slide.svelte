@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
 
   import type {SlideConfig, SlideData, SlideEvent} from "../types/slide";
-  import {defaultConfig} from "../types/rotate";
+  import {defaultConfig} from "../types/slide";
   import {useHandler} from "../handler/slide";
 
   import LoadingIcon from "../assets/icons/LoadingIcon.svelte";
@@ -26,7 +26,7 @@
 
   const hPadding = config.horizontalPadding || 0
   const vPadding = config.verticalPadding || 0
-  const width = (config.width || 0) + ( hPadding * 2)
+  const width = (config.width || 0) + ( hPadding * 2) + (config.showTheme ? 2 : 0)
 
   onMount(() => {
     handler.initRefs(containerRef, tileRef, dragBlockRef, dragBarRef)

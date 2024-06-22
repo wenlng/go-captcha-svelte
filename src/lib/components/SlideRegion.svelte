@@ -23,7 +23,7 @@
 
   const hPadding = config.horizontalPadding || 0
   const vPadding = config.verticalPadding || 0
-  const width = (config.width || 0) + ( hPadding * 2)
+  const width = (config.width || 0) + ( hPadding * 2) + (config.showTheme ? 2 : 0)
 
   onMount(() => {
     handler.initRefs(containerRef, tileRef)
