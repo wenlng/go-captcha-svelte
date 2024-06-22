@@ -4,7 +4,7 @@
  * @Email wengaolng@gmail.com
  **/
 
-import './gocaptcha.less'
+import './gocaptcha.css'
 
 import Click from "./components/Click.svelte"
 import Slide from "./components/Slide.svelte"
