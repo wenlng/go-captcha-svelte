@@ -50,6 +50,12 @@
     move(x: number, y: number): void {
       console.log("move >>>>>>>", x, y)
     },
+    confirm(point: any, clear: Function): void {
+      console.log("point >>>>>>>", point)
+      setTimeout(() => {
+        clear()
+      }, 100)
+    },
     refresh(): void {
       console.log("refresh >>>>>>>")
       slideData.thumbX = 40
@@ -73,6 +79,12 @@
     move(x: number, y: number): void {
       console.log("move >>>>>>>", x, y)
     },
+    confirm(point: any, clear: Function): void {
+      console.log("point >>>>>>>", point)
+      setTimeout(() => {
+        clear()
+      }, 100)
+    },
     refresh(): void {
       console.log("refresh >>>>>>>")
 
@@ -93,6 +105,12 @@
   const rotateEvents = {
     rotate(angle: number): void {
       console.log("rotate >>>>>>>", angle)
+    },
+    confirm(angle: any, clear: Function): void {
+      console.log("angle >>>>>>>", angle)
+      setTimeout(() => {
+        clear()
+      }, 100)
     },
     refresh(): void {
       console.log("refresh >>>>>>>")

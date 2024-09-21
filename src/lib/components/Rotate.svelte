@@ -64,10 +64,12 @@
     </div>
   </div>
   <div class="gc-footer">
-    <div class="gc-drag-slide-bar" bind:this={dragBarRef} on:mousedown={handler.dragEvent}>
+    <div class="gc-drag-slide-bar" bind:this={dragBarRef}>
       <div class="gc-drag-line"></div>
-      <div class="gc-drag-block" bind:this={dragBlockRef} on:touchstart={handler.dragEvent} style={dragStyle}>
-        <ArrowsIcon />
+      <div class="gc-drag-block" bind:this={dragBlockRef} on:mousedown={handler.dragEvent} style={dragStyle}>
+        <div class="drag-block-inline" on:touchstart={handler.dragEvent}>
+          <ArrowsIcon />
+        </div>
       </div>
     </div>
   </div>
