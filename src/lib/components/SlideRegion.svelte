@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
 
   import type {SlideRegionConfig, SlideRegionData, SlideRegionEvent} from "../types/slide-region";
-  import {defaultRegionConfig} from "../types/slide-region";
+  import {defaultRegionConfig, defaultSlideRegionData} from "../types/slide-region";
   import {useHandler} from "../handler/slide-region";
 
   import LoadingIcon from "../assets/icons/LoadingIcon.svelte";
@@ -11,7 +11,7 @@
   import {mergeTo} from "../helper/helper";
 
   export let config:SlideRegionConfig = defaultRegionConfig()
-  export let data:SlideRegionData = { thumbX: 0, thumbY: 0, thumbWidth: 0, thumbHeight: 0, image: "", thumb: "" }
+  export let data:SlideRegionData = defaultSlideRegionData()
   export let events:SlideRegionEvent = {}
 
   $: watchConfig(config)
@@ -21,7 +21,7 @@
 
   $: watchData(data)
   function watchData(c: SlideRegionData) {
-    mergeTo({ thumbX: 0, thumbY: 0, thumbWidth: 0, thumbHeight: 0, image: "", thumb: "" }, c)
+    mergeTo(defaultSlideRegionData(), c)
     handler?.updateState()
   }
 

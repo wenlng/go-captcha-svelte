@@ -50,3 +50,12 @@ export const defaultConfig = ():SlideConfig => ({
   iconSize: 22,
   scope: true,
 })
+
+export const defaultSlideData = (): SlideData => ({
+  thumbX: 0,
+  thumbY: 0,
+  thumbWidth: 0,
+  thumbHeight: 0,
+  image: '',
+  thumb: ''
+})

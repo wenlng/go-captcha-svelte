@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
 
   import type {SlideConfig, SlideData, SlideEvent} from "../types/slide";
-  import {defaultConfig} from "../types/slide";
+  import {defaultConfig, defaultSlideData} from "../types/slide";
   import {useHandler} from "../handler/slide";
 
   import LoadingIcon from "../assets/icons/LoadingIcon.svelte";
@@ -12,7 +12,7 @@
   import {mergeTo} from "../helper/helper";
 
   export let config:SlideConfig = defaultConfig()
-  export let data:SlideData = { thumbX: 0, thumbY: 0, thumbWidth: 0, thumbHeight: 0, image: "", thumb: "" }
+  export let data:SlideData = defaultSlideData()
   export let events:SlideEvent = {}
 
   $: watchConfig(config)
@@ -22,7 +22,7 @@
 
   $: watchData(data)
   function watchData(c: SlideData) {
-    mergeTo({ thumbX: 0, thumbY: 0, thumbWidth: 0, thumbHeight: 0, image: "", thumb: "" }, c)
+    mergeTo(defaultSlideData(), c)
     handler?.updateState()
   }
 

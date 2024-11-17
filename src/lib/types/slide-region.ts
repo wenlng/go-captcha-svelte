@@ -15,7 +15,6 @@ export interface SlideRegionConfig {
   scope ?: boolean;
 }
 
-
 export interface SlideRegionData {
   thumbX: number;
   thumbY: number;
@@ -46,4 +45,13 @@ export const defaultRegionConfig = ():SlideRegionConfig => ({
   title: "请拖拽贴图完成拼图",
   iconSize: 22,
   scope: true,
+})
+
+export const defaultSlideRegionData = (): SlideRegionData => ({
+  thumbX: 0,
+  thumbY: 0,
+  thumbWidth: 0,
+  thumbHeight: 0,
+  image: '',
+  thumb: ''
 })

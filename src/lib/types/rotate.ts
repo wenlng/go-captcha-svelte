@@ -41,3 +41,9 @@ export const defaultConfig = ():RotateConfig => ({
   iconSize: 22,
   scope: true,
 })
+
+export const defaultRotateData = () :RotateData => ({
+  angle: 0,
+  image: '',
+  thumb: ''
+})

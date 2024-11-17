@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
 
   import type {RotateConfig, RotateData, RotateEvent} from "../types/rotate";
-  import {defaultConfig} from "../types/rotate";
+  import {defaultConfig, defaultRotateData} from "../types/rotate";
   import {useHandler} from "../handler/rotate";
 
   import LoadingIcon from "../assets/icons/LoadingIcon.svelte";
@@ -12,7 +12,7 @@
   import {mergeTo} from "../helper/helper";
 
   export let config:RotateConfig = defaultConfig()
-  export let data:RotateData = { angle: 0, image: "", thumb: "" }
+  export let data:RotateData = defaultRotateData()
   export let events:RotateEvent = {}
 
   $: watchConfig(config)
@@ -22,7 +22,7 @@
 
   $: watchData(data)
   function watchData(c: RotateData) {
-    mergeTo({ angle: 0, image: "", thumb: "" }, c)
+    mergeTo(defaultRotateData(), c)
     handler?.updateState()
   }
 
@@ -90,7 +90,7 @@
     class:gc-rotate-body={true}
     style={bodyStyle}
   >
-    <div style={bodyBlockStyle}>
+    <div class="gc-body-inner" style={bodyBlockStyle}>
       <div class="gc-loading">
         <LoadingIcon />
       </div>
@@ -149,6 +149,10 @@
     justify-content: center;
     align-items: center;
     margin: 10px auto 0;
+
+    .gc-body-inner {
+      border-radius: 100%;
+    }
   }
 
   .gc-rotate-picture {
