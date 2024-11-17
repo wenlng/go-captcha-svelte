@@ -4,7 +4,7 @@
  * @Email wengaolng@gmail.com
  **/
 
-import type {SlideData, SlideEvent} from "../types/slide";
+import type {SlideConfig, SlideData, SlideEvent} from "../types/slide";
 import {checkTargetFather} from "../helper/helper";
 import {writable, get} from 'svelte/store';
 import type {Writable} from 'svelte/store';
@@ -12,16 +12,22 @@ import type {Writable} from 'svelte/store';
 export function useHandler(
   data: SlideData,
   event: SlideEvent,
+  config: SlideConfig,
+  clearCbs: () => void
 ) {
   let state: Writable<{ thumbLeft: number; dragLeft: number }> = writable({dragLeft: 0, thumbLeft: data.thumbX || 0})
+  let isFreeze: boolean = false
 
+  let rootRef: HTMLElement
   let containerRef: HTMLElement
   let tileRef: HTMLElement
   let dragBlockRef: HTMLElement
   let dragBarRef: HTMLElement
 
-  const clear = () => {
-    state.set({dragLeft: 0, thumbLeft: data.thumbX || 0})
+  const updateState = () => {
+    if(!isFreeze){
+      state.set({...state, thumbLeft: data.thumbX || 0})
+    }
   }
 
   const dragEvent = (e: Event|any) => {
@@ -33,8 +39,9 @@ export function useHandler(
     const thumbX = data.thumbX || 0
 
     const tileWith  = tileRef.offsetWidth
-    const ad = blockWidth - tileWith
-    const ratio = ((maxWidth - thumbX) + ad) / maxWidth
+    const tileOffsetLeft = tileRef.offsetLeft
+    const tileMaxWith = width - (tileWith + tileOffsetLeft)
+    const ratio = tileMaxWith / maxWidth
 
     let isMoving = false
     let tmpLeaveDragEvent: Event|any = null
@@ -58,17 +65,20 @@ export function useHandler(
         left = e.clientX - startX
       }
 
+      const ctX = tileOffsetLeft + (left * ratio)
       if (left >= maxWidth) {
-        state.set({...curState, dragLeft: maxWidth})
+        currentThumbX = maxWidth
+        state.set({...curState, dragLeft: maxWidth, thumbLeft: currentThumbX})
         return
       }
 
       if (left <= 0) {
-        state.set({...curState, dragLeft: 0})
+        currentThumbX = tileOffsetLeft
+        state.set({...curState, dragLeft: 0, thumbLeft: tileOffsetLeft})
         return
       }
 
-      currentThumbX = thumbX + (left * ratio)
+      currentThumbX =  ctX
       state.set({thumbLeft: currentThumbX, dragLeft: left})
 
       event.move && event.move(currentThumbX, data.thumbY || 0)
@@ -88,8 +98,13 @@ export function useHandler(
 
       isMoving = false
       clearEvent()
+
+      if (currentThumbX < 0) {
+        return
+      }
+
       event.confirm && event.confirm({x: parseInt(currentThumbX.toString()), y: data.thumbY || 0}, () => {
-        clear()
+        resetData()
       })
 
       e.cancelBubble = true
@@ -113,50 +128,79 @@ export function useHandler(
       clearEvent()
     }
 
+    const scope = config.scope
+    const dragDom = scope ? rootRef : dragBarRef
+    const scopeDom = scope ? rootRef : document.body
+
     const clearEvent = () => {
-      dragBarRef.removeEventListener("mousemove", moveEvent, false)
+      scopeDom.removeEventListener("mousemove", moveEvent, false)
       // @ts-ignore
-      dragBarRef.removeEventListener("touchmove", moveEvent, { passive: false })
+      scopeDom.removeEventListener("touchmove", moveEvent, { passive: false })
 
-      dragBarRef.removeEventListener( "mouseup", upEvent, false)
-      // dragBarRef.removeEventListener( "mouseout", upEvent, false)
-      dragBarRef.removeEventListener( "mouseenter", enterDragBlockEvent, false)
-      dragBarRef.removeEventListener( "mouseleave", leaveDragBlockEvent, false)
-      dragBarRef.removeEventListener("touchend", upEvent, false)
+      dragDom.removeEventListener( "mouseup", upEvent, false)
+      dragDom.removeEventListener( "mouseenter", enterDragBlockEvent, false)
+      dragDom.removeEventListener( "mouseleave", leaveDragBlockEvent, false)
+      dragDom.removeEventListener("touchend", upEvent, false)
 
-      document.body.removeEventListener("mouseleave", upEvent, false)
-      document.body.removeEventListener("mouseup", leaveUpEvent, false)
+      scopeDom.removeEventListener("mouseleave", upEvent, false)
+      scopeDom.removeEventListener("mouseup", leaveUpEvent, false)
+      isFreeze = false
     }
+    isFreeze = true
 
-    dragBarRef.addEventListener("mousemove", moveEvent, false)
-    dragBarRef.addEventListener("touchmove", moveEvent, { passive: false })
-    dragBarRef.addEventListener( "mouseup", upEvent, false)
-    // dragBarRef.addEventListener( "mouseout", upEvent, false)
-    dragBarRef.addEventListener( "mouseenter", enterDragBlockEvent, false)
-    dragBarRef.addEventListener( "mouseleave", leaveDragBlockEvent, false)
-    dragBarRef.addEventListener("touchend", upEvent, false)
+    scopeDom.addEventListener("mousemove", moveEvent, false)
+    scopeDom.addEventListener("touchmove", moveEvent, { passive: false })
 
-    document.body.addEventListener("mouseleave", upEvent, false)
-    document.body.addEventListener("mouseup", leaveUpEvent, false)
+    dragDom.addEventListener( "mouseup", upEvent, false)
+    dragDom.addEventListener( "mouseenter", enterDragBlockEvent, false)
+    dragDom.addEventListener( "mouseleave", leaveDragBlockEvent, false)
+    dragDom.addEventListener("touchend", upEvent, false)
+
+    scopeDom.addEventListener("mouseleave", upEvent, false)
+    scopeDom.addEventListener("mouseup", leaveUpEvent, false)
   }
 
   const closeEvent = (e: Event|any) => {
-    event && event.close && event.close()
-    clear()
+    close()
     e.cancelBubble = true
     e.preventDefault()
     return false
   }
 
   const refreshEvent = (e: Event|any) => {
-    event && event.refresh && event.refresh()
-    clear()
+    refresh()
     e.cancelBubble = true
     e.preventDefault()
     return false
   }
 
-  const initRefs = (container: HTMLElement, tile: HTMLElement, dragBlock: HTMLElement, dragBar: HTMLElement) => {
+  const resetData = () => {
+    state.set({dragLeft: 0, thumbLeft: data.thumbX || 0})
+  }
+
+  const clearData = () => {
+    resetData()
+    clearCbs && clearCbs()
+  }
+
+  const close = () => {
+    event.close && event.close()
+    resetData()
+  }
+
+  const refresh = () => {
+    event.refresh && event.refresh()
+    resetData()
+  }
+
+  const initRefs = (
+    root: HTMLElement,
+    container: HTMLElement,
+    tile: HTMLElement,
+    dragBlock: HTMLElement,
+    dragBar: HTMLElement
+  ) => {
+    rootRef = root
     containerRef = container
     tileRef = tile
     dragBlockRef = dragBlock
@@ -166,8 +210,13 @@ export function useHandler(
   return {
     state,
     initRefs,
+    updateState,
     dragEvent,
     closeEvent,
     refreshEvent,
+    resetData,
+    clearData,
+    close,
+    refresh,
   }
 }

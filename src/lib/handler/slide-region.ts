@@ -4,7 +4,7 @@
  * @Email wengaolng@gmail.com
  **/
 
-import type {SlideRegionData, SlideRegionEvent} from "../types/slide-region";
+import type {SlideRegionConfig, SlideRegionData, SlideRegionEvent} from "../types/slide-region";
 import {checkTargetFather} from "../helper/helper";
 import {writable, get} from 'svelte/store';
 import type {Writable} from 'svelte/store';
@@ -12,13 +12,20 @@ import type {Writable} from 'svelte/store';
 export function useHandler(
   data: SlideRegionData,
   event: SlideRegionEvent,
+  config: SlideRegionConfig,
+  clearCbs: () => void
 ) {
   const state: Writable<{ x: number; y: number }> = writable({x: data.thumbX || 0, y: data.thumbY || 0})
+  let isFreeze: boolean = false
+
+  let rootRef: HTMLElement
   let containerRef: HTMLElement
   let tileRef: HTMLElement
 
-  const clear = () => {
-    state.set({x: data.thumbX || 0, y: data.thumbY || 0})
+  const updateState = () => {
+    if(!isFreeze){
+      state.set({x: data.thumbX || 0, y: data.thumbY || 0})
+    }
   }
 
   const dragEvent = (e: Event|any) => {
@@ -96,8 +103,12 @@ export function useHandler(
       isMoving = false
       clearEvent()
 
+      if (tileLeft < 0 || tileTop < 0) {
+        return
+      }
+
       event.confirm && event.confirm({x: tileLeft, y: tileTop}, () => {
-        clear()
+        resetData()
       })
 
       e.cancelBubble = true
@@ -121,50 +132,74 @@ export function useHandler(
       clearEvent()
     }
 
+    const scope = config.scope
+    const dragDom = scope ? rootRef : containerRef
+    const scopeDom = scope ? rootRef : document.body
+
     const clearEvent = () => {
-      containerRef.removeEventListener("mousemove", moveEvent, false)
+      scopeDom.removeEventListener("mousemove", moveEvent, false)
       // @ts-ignore
-      containerRef.removeEventListener("touchmove", moveEvent, { passive: false })
+      scopeDom.removeEventListener("touchmove", moveEvent, { passive: false })
 
-      containerRef.removeEventListener( "mouseup", upEvent, false)
-      // containerRef.removeEventListener( "mouseout", upEvent, false)
-      containerRef.removeEventListener( "mouseenter", enterDragBlockEvent, false)
-      containerRef.removeEventListener( "mouseleave", leaveDragBlockEvent, false)
-      containerRef.removeEventListener("touchend", upEvent, false)
+      dragDom.removeEventListener( "mouseup", upEvent, false)
+      dragDom.removeEventListener( "mouseenter", enterDragBlockEvent, false)
+      dragDom.removeEventListener( "mouseleave", leaveDragBlockEvent, false)
+      dragDom.removeEventListener("touchend", upEvent, false)
 
-      document.body.removeEventListener("mouseleave", upEvent, false)
-      document.body.removeEventListener("mouseup", leaveUpEvent, false)
+      scopeDom.removeEventListener("mouseleave", upEvent, false)
+      scopeDom.removeEventListener("mouseup", leaveUpEvent, false)
+
+      isFreeze = false
     }
+    isFreeze = true
 
-    containerRef.addEventListener("mousemove", moveEvent, false)
-    containerRef.addEventListener("touchmove", moveEvent, { passive: false })
-    containerRef.addEventListener( "mouseup", upEvent, false)
-    // containerRef.addEventListener( "mouseout", upEvent, false)
-    containerRef.addEventListener( "mouseenter", enterDragBlockEvent, false)
-    containerRef.addEventListener( "mouseleave", leaveDragBlockEvent, false)
-    containerRef.addEventListener("touchend", upEvent, false)
+    scopeDom.addEventListener("mousemove", moveEvent, false)
+    scopeDom.addEventListener("touchmove", moveEvent, { passive: false })
 
-    document.body.addEventListener("mouseleave", upEvent, false)
-    document.body.addEventListener("mouseup", leaveUpEvent, false)
+    dragDom.addEventListener( "mouseup", upEvent, false)
+    dragDom.addEventListener( "mouseenter", enterDragBlockEvent, false)
+    dragDom.addEventListener( "mouseleave", leaveDragBlockEvent, false)
+    dragDom.addEventListener("touchend", upEvent, false)
+
+    scopeDom.addEventListener("mouseleave", upEvent, false)
+    scopeDom.addEventListener("mouseup", leaveUpEvent, false)
   }
 
   const closeEvent = (e: Event|any) => {
-    event && event.close && event.close()
-    clear()
+    close()
     e.cancelBubble = true
     e.preventDefault()
     return false
   }
 
   const refreshEvent = (e: Event|any) => {
-    event && event.refresh && event.refresh()
-    clear()
+    refresh()
     e.cancelBubble = true
     e.preventDefault()
     return false
   }
 
-  const initRefs = (container: HTMLElement, tile: HTMLElement) => {
+  const resetData = () => {
+    state.set({x: data.thumbX || 0, y: data.thumbY || 0})
+  }
+
+  const clearData = () => {
+    resetData()
+    clearCbs && clearCbs()
+  }
+
+  const close = () => {
+    event.close && event.close()
+    resetData()
+  }
+
+  const refresh = () => {
+    event.refresh && event.refresh()
+    resetData()
+  }
+
+  const initRefs = (root: HTMLElement, container: HTMLElement, tile: HTMLElement) => {
+    rootRef = root
     containerRef = container
     tileRef = tile
   }
@@ -172,8 +207,13 @@ export function useHandler(
   return {
     state,
     initRefs,
+    updateState,
     dragEvent,
     closeEvent,
     refreshEvent,
+    resetData,
+    clearData,
+    close,
+    refresh,
   }
 }

@@ -11,7 +11,8 @@ import type {Writable} from 'svelte/store';
 
 export const useHandler = (
   _data: ClickData,
-  events: ClickEvent,
+  event: ClickEvent,
+  clearCbs: () => void
 ) => {
   let dots: Writable<any[]> = writable([])
 
@@ -35,22 +36,15 @@ export const useHandler = (
     const index = d.length
     dots.set([...d, {key: date.getTime(), index: index + 1, x: xx, y: yy}])
 
-    events.click && events.click(xx, yy)
+    event.click && event.click(xx, yy)
     e.cancelBubble = true
     e.preventDefault()
     return false
   }
 
   const confirmEvent = (e: Event|any) => {
-    const dotsStr = JSON.stringify(get(dots))
-    let ds: Array<ClickDot> = []
-    try {
-      ds = JSON.parse(dotsStr)
-    } catch (e) {
-      console.warn("parse dots error", e)
-    }
-
-    events.confirm && events.confirm(ds, () => {
+    let ds: Array<ClickDot> = get(dots)
+    event.confirm && event.confirm(ds, () => {
       dots.set([])
     })
     e.cancelBubble = true
@@ -59,19 +53,36 @@ export const useHandler = (
   }
 
   const closeEvent = (e: Event|any) => {
-    events.close && events.close()
-    dots.set([])
+    close()
     e.cancelBubble = true
     e.preventDefault()
     return false
   }
 
   const refreshEvent = (e: Event|any) => {
-    events.refresh && events.refresh()
-    dots.set([])
+    refresh()
     e.cancelBubble = true
     e.preventDefault()
     return false
+  }
+
+  const resetData = () => {
+    dots.set([])
+  }
+
+  const clearData = () => {
+    resetData()
+    clearCbs && clearCbs()
+  }
+
+  const close = () => {
+    event.close && event.close()
+    resetData()
+  }
+
+  const refresh = () => {
+    event.refresh && event.refresh()
+    resetData()
   }
 
   return {
@@ -80,5 +91,9 @@ export const useHandler = (
     confirmEvent,
     closeEvent,
     refreshEvent,
+    resetData,
+    clearData,
+    close,
+    refresh,
   }
 }

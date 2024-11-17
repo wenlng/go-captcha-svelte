@@ -9,64 +9,126 @@
   import CloseIcon from "../assets/icons/CloseIcon.svelte";
   import RefreshIcon from "../assets/icons/RefreshIcon.svelte";
   import ArrowsIcon from "../assets/icons/ArrowsIcon.svelte";
+  import {mergeTo} from "../helper/helper";
 
   export let config:RotateConfig = defaultConfig()
   export let data:RotateData = { angle: 0, image: "", thumb: "" }
   export let events:RotateEvent = {}
 
+  $: watchConfig(config)
+  function watchConfig(c: RotateConfig) {
+    mergeTo(defaultConfig(), c)
+  }
+
+  $: watchData(data)
+  function watchData(c: RotateData) {
+    mergeTo({ angle: 0, image: "", thumb: "" }, c)
+    handler?.updateState()
+  }
+
+  let rootRef: HTMLElement
   let dragBarRef: HTMLElement
   let dragBlockRef: HTMLElement
 
-  config = {...defaultConfig(), ...config}
+  const handler = useHandler(data, events, config, () => {
+    data.angle = 0
+    data.image = ""
+    data.thumb = ""
+  })
 
-  const handler = useHandler(data, events)
+  export const clear = handler.clearData
+  export const reset = handler.resetData
+  export const close = handler.close
+  export const refresh = handler.refresh
+
   const state = handler.state
 
-  const hPadding = config.horizontalPadding || 0
-  const vPadding = config.verticalPadding || 0
-  const width = (config.width || 0) + ( hPadding * 2) + (config.showTheme ? 2 : 0)
-
   onMount(() => {
-    handler.initRefs(dragBlockRef, dragBarRef)
+    handler.initRefs(rootRef, dragBlockRef, dragBarRef)
     if (dragBlockRef) {
       dragBlockRef.addEventListener('dragstart', (event: any) => event.preventDefault());
     }
   })
 
+  $: width = (config.width || 0) + ( (config.horizontalPadding || 0) * 2) + (config.showTheme ? 2 : 0)
+  $: size = (config.size || 0) > 0 ? config.size : defaultConfig().size
+  $: hasDisplayWrapperState = (config.width || 0) > 0 || (config.height || 0) > 0
+  $: hasDisplayImageState = data.image != '' || data.thumb != ''
+
   $: wrapperClass = config.showTheme ? 'gc-theme' : ''
-  $: wrapperStyle = `width: ${width}px; padding: ${vPadding}px ${hPadding}px;`
-  $: imageStyle = `width: ${config.size}px; height: ${config.size}px`
-  $: thumbStyle = `transform: rotate(${$state.thumbAngle}deg)`
+  $: wrapperStyle = `width: ${width}px; padding: ${config.verticalPadding || 0}px ${config.horizontalPadding || 0}px; display: ${hasDisplayWrapperState ? 'block' : 'none'}`
+  $: bodyStyle = `width: ${config.width}px; height: ${config.height}px;`
+  $: bodyBlockStyle = `width: ${size}px, height: ${size}px`
+  $: imageStyle = `width: ${config.size}px; height: ${config.size}px; display: ${hasDisplayImageState ? 'block' : 'none'}`
+  $: thumbStyle = `transform: rotate(${$state.thumbAngle}deg); visibility: ${hasDisplayImageState ? 'visible' : 'hidden'}`
   $: dragStyle = `left: ${$state.dragLeft}px`
 
 </script>
 
-<div class={`go-captcha gc-wrapper ${wrapperClass}`} style={wrapperStyle}>
+<div
+  class={`go-captcha gc-wrapper ${wrapperClass}`}
+  style={wrapperStyle}
+  bind:this={rootRef}
+>
   <div class="gc-header">
     <span>{ config.title }</span>
     <div class="gc-icon-block" class:gc-icon-block2={true}>
-      <CloseIcon width={22} height={22} clickEvent={handler.closeEvent}/>
-      <RefreshIcon width={22} height={22} clickEvent={handler.refreshEvent}/>
+      <CloseIcon
+        width={config.iconSize}
+        height={config.iconSize}
+        clickEvent={handler.closeEvent}
+      />
+      <RefreshIcon
+        width={config.iconSize}
+        height={config.iconSize}
+        clickEvent={handler.refreshEvent}
+      />
     </div>
   </div>
-  <div class="gc-body" class:gc-rotate-body={true} style={imageStyle}>
-    <div class="gc-loading">
-      <LoadingIcon />
-    </div>
-    <div class="gc-picture" class:gc-rotate-picture={true} style={imageStyle}>
-      <img class={`${data.image === '' ? 'gc-hide' : ''}`} src={data.image} alt="..." />
-      <div class="gc-round"></div>
-    </div>
-    <div class="gc-thumb" class:gc-rotate-thumb={true}>
-      <div class:gc-rotate-thumb-block={true} style={thumbStyle}>
-        <img class={`${data.thumb === '' ? 'gc-hide' : ''}`} src={data.thumb} alt="..." />
+  <div
+    class="gc-body"
+    class:gc-rotate-body={true}
+    style={bodyStyle}
+  >
+    <div style={bodyBlockStyle}>
+      <div class="gc-loading">
+        <LoadingIcon />
+      </div>
+      <div
+        class="gc-picture"
+        class:gc-rotate-picture={true}
+        style={imageStyle}
+      >
+        <img
+          class={`${data.image === '' ? 'gc-hide' : ''}`}
+          src={data.image}
+          alt=""
+        />
+        <div class="gc-round"></div>
+      </div>
+      <div class="gc-thumb" class:gc-rotate-thumb={true}>
+        <div
+          class:gc-rotate-thumb-block={true}
+          style={thumbStyle}
+        >
+          <img
+            class={`${data.thumb === '' ? 'gc-hide' : ''}`}
+            src={data.thumb}
+            alt=""
+          />
+        </div>
       </div>
     </div>
   </div>
   <div class="gc-footer">
     <div class="gc-drag-slide-bar" bind:this={dragBarRef}>
       <div class="gc-drag-line"></div>
-      <div class="gc-drag-block" bind:this={dragBlockRef} on:mousedown={handler.dragEvent} style={dragStyle}>
+      <div
+        class={`gc-drag-block ${!hasDisplayImageState && "disabled"}`}
+        bind:this={dragBlockRef}
+        on:mousedown={handler.dragEvent}
+        style={dragStyle}
+      >
         <div class="drag-block-inline" on:touchstart={handler.dragEvent}>
           <ArrowsIcon />
         </div>

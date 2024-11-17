@@ -12,6 +12,8 @@ export interface RotateConfig {
   horizontalPadding?: number;
   showTheme?: boolean;
   title?: string;
+  iconSize?: number;
+  scope ?: boolean;
 }
 
 export interface RotateData {
@@ -36,4 +38,6 @@ export const defaultConfig = ():RotateConfig => ({
   horizontalPadding: 12,
   showTheme: true,
   title: "请拖动滑块完成拼图",
+  iconSize: 22,
+  scope: true,
 })

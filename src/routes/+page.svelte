@@ -2,6 +2,7 @@
   import "$lib/gocaptcha.less"
   // import {Click, Rotate, Slide, SlideRegion, Button} from "./../../";
   import {Click, Rotate, Slide, SlideRegion, Button} from "$lib/index";
+  import {onMount} from "svelte";
 
   let type = "default"
 
@@ -19,25 +20,49 @@
     image: clickImage,
     thumb: clickThumb,
   }
+
+  const clickConfig = {
+    width: 300,
+    height: 220,
+  }
+
   const clickEvents = {
     click(x: number, y: number): void {
       console.log("click >>>>>>>", x, y)
     },
-    confirm(dots: any, clear: Function): void {
+    confirm(dots: any, reset: Function): void {
       console.log("dots >>>>>>>", dots)
       setTimeout(() => {
-        clear()
+        reset()
       }, 100)
     },
     refresh(): void {
       console.log("refresh >>>>>>>")
       clickData.image = clickImage2
+      clickData.thumb = clickThumb
     },
     close(): void {
       console.log("close >>>>>>>")
     },
   }
 
+  let clickRef: HTMLElement | any;
+  onMount(() => {
+    // setTimeout(() => {
+    //   clickConfig.width = 500
+    //   clickConfig.height =500
+    // }, 2000)
+
+    setTimeout(() => {
+      // clickRef?.reset()
+      // clickRef?.clear()
+      // clickRef?.refresh()
+      // clickRef?.close()
+    }, 3000)
+  })
+
+
+  /////////////////////////////////////////////////////////////////////////////
   const slideData = {
     thumbX: 20,
     thumbY: 20,
@@ -46,26 +71,52 @@
     image: slideImage,
     thumb: slideThumbImage,
   }
+
+  const slideConfig = {
+    width: 300,
+    height: 220,
+  }
+
   const slideEvents = {
     move(x: number, y: number): void {
       console.log("move >>>>>>>", x, y)
     },
-    confirm(point: any, clear: Function): void {
+    confirm(point: any, reset: Function): void {
       console.log("point >>>>>>>", point)
       setTimeout(() => {
-        clear()
+        reset()
       }, 100)
     },
     refresh(): void {
       console.log("refresh >>>>>>>")
       slideData.thumbX = 40
       slideData.thumbY = 60
+      slideData.thumbWidth = 80
+      slideData.thumbHeight = 80
       slideData.image = clickImage2
+      slideData.thumb = slideThumbImage
     },
     close(): void {
       console.log("close >>>>>>>")
     }
   }
+
+  let slideRef: HTMLElement | any;
+  onMount(() => {
+    // setTimeout(() => {
+    //   slideConfig.width = 500
+    //   slideConfig.height =500
+    // }, 2000)
+
+    setTimeout(() => {
+      // slideRef?.reset()
+      // slideRef?.clear()
+      // slideRef?.refresh()
+      // slideRef?.close()
+    }, 3000)
+  })
+
+  ///////////////////////////////////////////////////
 
   const slideRegionData = {
     thumbX: 20,
@@ -75,6 +126,12 @@
     image: slideImage,
     thumb: slideThumbImage,
   }
+
+  const slideRegionConfig = {
+    width: 300,
+    height: 220,
+  }
+
   const slideRegionEvents = {
     move(x: number, y: number): void {
       console.log("move >>>>>>>", x, y)
@@ -87,21 +144,47 @@
     },
     refresh(): void {
       console.log("refresh >>>>>>>")
-
       slideRegionData.thumbX = 40
       slideRegionData.thumbY = 60
+      slideRegionData.thumbWidth = 80
+      slideRegionData.thumbHeight = 80
       slideRegionData.image = clickImage2
+      slideRegionData.thumb = slideThumbImage
     },
     close(): void {
       console.log("close >>>>>>>")
     }
   }
 
+  let slideRegionRef: HTMLElement | any;
+  onMount(() => {
+    // setTimeout(() => {
+    //   slideRegionConfig.width = 500
+    //   slideRegionConfig.height =500
+    // }, 2000)
+
+    setTimeout(() => {
+      // slideRegionRef?.reset()
+      // slideRegionRef?.clear()
+      // slideRegionRef?.refresh()
+      // slideRegionRef?.close()
+    }, 3000)
+  })
+
+  ///////////////////////////////////////////////////
+
+
   const rotateData = {
     angle: 20,
     image: rotateImage,
     thumb: rotateThumb,
   }
+
+  const rotateConfig = {
+    width: 300,
+    height: 220,
+  }
+
   const rotateEvents = {
     rotate(angle: number): void {
       console.log("rotate >>>>>>>", angle)
@@ -115,26 +198,43 @@
     refresh(): void {
       console.log("refresh >>>>>>>")
       rotateData.image = clickImage2
+      rotateData.thumb = rotateThumb
+      rotateData.angle = 30
     },
     close(): void {
       console.log("close >>>>>>>")
     }
   }
+
+  let rotateRef: HTMLElement | any;
+  onMount(() => {
+    // setTimeout(() => {
+    //   rotateConfig.width = 500
+    //   rotateConfig.height =500
+    // }, 2000)
+
+    setTimeout(() => {
+      // rotateRef?.reset()
+      // rotateRef?.clear()
+      // rotateRef?.refresh()
+      // rotateRef?.close()
+    }, 3000)
+  })
 </script>
 
 <br/>
 <br/>
 
-<Click data={clickData} events={clickEvents}/>
+<Click data={clickData} events={clickEvents} config={clickConfig} bind:this={clickRef}/>
 <br/>
 
-<Slide data={slideData} events={slideEvents}/>
+<Slide data={slideData} events={slideEvents} config={slideConfig} bind:this={slideRef}/>
 <br />
 
-<SlideRegion data={slideRegionData} events={slideRegionEvents}/>
+<SlideRegion data={slideRegionData} events={slideRegionEvents} config={slideRegionConfig} bind:this={slideRegionRef}/>
 <br />
 
-<Rotate data={rotateData} events={rotateEvents}/>
+<Rotate data={rotateData} events={rotateEvents} config={rotateConfig} bind:this={rotateRef}/>
 <br />
 
 <Button clickEvent={() => type="warn"} type={type}/>

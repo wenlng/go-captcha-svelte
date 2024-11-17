@@ -6,49 +6,90 @@
   import LoadingIcon from "../assets/icons/LoadingIcon.svelte";
   import CloseIcon from "../assets/icons/CloseIcon.svelte";
   import RefreshIcon from "../assets/icons/RefreshIcon.svelte";
+  import {mergeTo} from "../helper/helper";
 
   export let config:ClickConfig = defaultConfig()
   export let data:ClickData = { image: "", thumb: "" }
   export let events:ClickEvent = {}
 
-  config = {...defaultConfig(), ...config}
+  $: watchConfig(config)
+  function watchConfig(c: ClickConfig) {
+    mergeTo(defaultConfig(), c)
+  }
 
-  const handler = useHandler(data, events)
+  $: watchData(data)
+  function watchData(c: ClickData) {
+    mergeTo({ image: "", thumb: "" }, c)
+  }
+
+  const handler = useHandler(data, events, () => {
+    data.thumb =''
+    data.image = ''
+  })
+
+  export const clear = handler.clearData
+  export const reset = handler.resetData
+  export const close = handler.close
+  export const refresh = handler.refresh
+
   const dots = handler.dots
 
-  const hPadding = config.horizontalPadding || 0
-  const vPadding = config.verticalPadding || 0
-  const width = (config.width || 0) + ( hPadding * 2) + (config.showTheme ? 2 : 0)
+  $: width = (config.width || 0) + ( (config.horizontalPadding || 0) * 2) + (config.showTheme ? 2 : 0)
+  $: hasDisplayWrapperState = (config.width || 0) > 0 || (config.height || 0) > 0
+  $: hasDisplayImageState = data.image != '' || data.thumb != ''
 
   $: wrapperClass = config.showTheme ? 'gc-theme' : ''
-  $: wrapperStyle = `width: ${width}px; padding: ${vPadding}px ${hPadding}px;`
-  $: imageStyle = `width: ${config.width}px; height: ${config.height}px`
-  $: thumbStyle = `width: ${config.thumbWidth}px; height: ${config.thumbHeight}px`
+  $: wrapperStyle = `width: ${width}px; padding: ${config.verticalPadding || 0}px ${config.horizontalPadding || 0}px; display: ${hasDisplayWrapperState ? 'block' : 'none'}`
+  $: bodyStyle = `width: ${config.width}px; height: ${config.height}px;`
+  $: imageStyle = `width: ${config.width}px; height: ${config.height}px; display: ${hasDisplayImageState ? 'block' : 'none'}`
+  $: thumbStyle = `width: ${config.thumbWidth}px; height: ${config.thumbHeight}px;  display: ${hasDisplayImageState ? 'block' : 'none'}`
 </script>
 
-<div class={`go-captcha gc-wrapper ${wrapperClass}`} style={wrapperStyle}>
+<div class={`go-captcha gc-wrapper ${wrapperClass}`} style={wrapperStyle} >
   <div class="gc-header">
     <span>{ config.title }</span>
-    <img class={data.thumb === '' ? 'gc-hide' : ''} style={thumbStyle} src={data.thumb} alt="..." />
+    <img
+      class={data.thumb === '' ? 'gc-hide' : ''}
+      style={thumbStyle}
+      src={data.thumb}
+      alt=""
+    />
   </div>
-  <div class="gc-body" style={imageStyle}>
+  <div class="gc-body" style={bodyStyle}>
     <div class="gc-loading">
       <LoadingIcon />
     </div>
-    <img style={imageStyle} class={`gc-picture ${data.image === '' ? 'gc-hide' : ''}`} src={data.image} alt="..." on:click={handler.clickEvent}/>
+    <img
+      style={imageStyle}
+      class={`gc-picture ${data.image === '' ? 'gc-hide' : ''}`}
+      src={data.image}
+      alt=""
+      on:click={handler.clickEvent}
+    />
     <div class:gc-dots={true}>
       {#each $dots as dot}
-      <div class:gc-dot={true} style={`top: ${(dot.y - 11)}px; left: ${(dot.x - 11)}px`}>{dot.index}</div>
+      <div
+        class:gc-dot={true}
+        style={`top: ${(dot.y - ((config.dotSize || 1)/2)-1)}px; left: ${(dot.x - ((config.dotSize || 1)/2)-1)}px`}
+      >{dot.index}</div>
       {/each}
     </div>
   </div>
   <div class="gc-footer">
     <div class="gc-icon-block" class:gc-icon-block2={true}>
-      <CloseIcon width={22} height={22} clickEvent={handler.closeEvent}/>
-      <RefreshIcon width={22} height={22} clickEvent={handler.refreshEvent}/>
+      <CloseIcon
+        width={config.iconSize}
+        height={config.iconSize}
+        clickEvent={handler.closeEvent}
+      />
+      <RefreshIcon
+        width={config.iconSize}
+        height={config.iconSize}
+        clickEvent={handler.refreshEvent}
+      />
     </div>
     <div class="gc-button-block">
-      <button on:click={handler.confirmEvent}>{ config.buttonText }</button>
+      <button class={!hasDisplayImageState && "disabled"} on:click={handler.confirmEvent}>{ config.buttonText }</button>
     </div>
   </div>
 </div>
@@ -68,11 +109,11 @@
       .gc-dot {
         position: absolute;
         z-index: 2;
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
         color: #cedffe;
         background: #3e7cff;
-        border: 2px solid #f7f9fb;
+        border: 3px solid #f7f9fb;
         display:-webkit-box;
         display:-webkit-flex;
         display:-ms-flexbox;

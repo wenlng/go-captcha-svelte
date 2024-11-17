@@ -14,8 +14,9 @@ export interface ClickConfig {
   showTheme?: boolean;
   title?: string;
   buttonText?: string;
+  iconSize?: number;
+  dotSize?: number;
 }
-
 
 export interface ClickData {
   image: string;
@@ -47,5 +48,7 @@ export const defaultConfig = ():ClickConfig => ({
   horizontalPadding: 12,
   showTheme: true,
   title: "请在下图依次点击",
-  buttonText: "确认"
+  buttonText: "确认",
+  iconSize: 22,
+  dotSize: 24,
 })
