@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import {onDestroy, onMount} from 'svelte';
 
   import type {SlideRegionConfig, SlideRegionData, SlideRegionEvent} from "../types/slide-region";
   import {defaultRegionConfig, defaultSlideRegionData} from "../types/slide-region";
@@ -45,11 +45,14 @@
   let containerRef: HTMLElement
   let tileRef: HTMLElement
 
+  const fn = (event: any) => event.preventDefault()
   onMount(() => {
     handler.initRefs(rootRef, containerRef, tileRef)
-    if (tileRef) {
-      tileRef.addEventListener('dragstart', (event: any) => event.preventDefault());
-    }
+    tileRef && tileRef.addEventListener('dragstart', fn);
+  })
+
+  onDestroy(() => {
+    tileRef && tileRef.removeEventListener('dragstart', fn);
   })
 
   $: width = (config.width || 0) + ( (config.horizontalPadding || 0) * 2) + (config.showTheme ? 2 : 0)

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
 
   import type {RotateConfig, RotateData, RotateEvent} from "../types/rotate";
   import {defaultConfig, defaultRotateData} from "../types/rotate";
@@ -43,11 +43,14 @@
 
   const state = handler.state
 
+  const fn = (event: any) => event.preventDefault()
   onMount(() => {
     handler.initRefs(rootRef, dragBlockRef, dragBarRef)
-    if (dragBlockRef) {
-      dragBlockRef.addEventListener('dragstart', (event: any) => event.preventDefault());
-    }
+    dragBlockRef && dragBlockRef.addEventListener('dragstart', fn);
+  })
+
+  onDestroy(() => {
+    dragBlockRef && dragBlockRef.removeEventListener('dragstart', fn);
   })
 
   $: width = (config.width || 0) + ( (config.horizontalPadding || 0) * 2) + (config.showTheme ? 2 : 0)

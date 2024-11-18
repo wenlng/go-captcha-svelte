@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import {onDestroy, onMount} from 'svelte';
 
   import type {SlideConfig, SlideData, SlideEvent} from "../types/slide";
   import {defaultConfig, defaultSlideData} from "../types/slide";
@@ -48,11 +48,14 @@
 
   const state = handler.state
 
+  const fn = (event: any) => event.preventDefault()
   onMount(() => {
     handler.initRefs(rootRef, containerRef, tileRef, dragBlockRef, dragBarRef)
-    if (dragBlockRef) {
-      dragBlockRef.addEventListener('dragstart', (event: any) => event.preventDefault());
-    }
+    dragBlockRef && dragBlockRef.addEventListener('dragstart', fn);
+  })
+
+  onDestroy(() => {
+    dragBlockRef && dragBlockRef.removeEventListener('dragstart', fn);
   })
 
   $: width = (config.width || 0) + ( (config.horizontalPadding || 0) * 2) + (config.showTheme ? 2 : 0)
