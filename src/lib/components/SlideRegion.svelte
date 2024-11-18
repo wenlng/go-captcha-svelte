@@ -9,23 +9,35 @@
   import CloseIcon from "../assets/icons/CloseIcon.svelte";
   import RefreshIcon from "../assets/icons/RefreshIcon.svelte";
   import {mergeTo} from "../helper/helper";
+  import {writable} from "svelte/store";
+  import type {Writable} from 'svelte/store';
 
   export let config:SlideRegionConfig = defaultRegionConfig()
   export let data:SlideRegionData = defaultSlideRegionData()
   export let events:SlideRegionEvent = {}
 
+  const localConfig: Writable<SlideRegionConfig> = writable({...config})
   $: watchConfig(config)
   function watchConfig(c: SlideRegionConfig) {
     mergeTo(defaultRegionConfig(), c)
+    localConfig.set(c)
   }
 
+  const localData: Writable<SlideRegionData> = writable({...data})
   $: watchData(data)
   function watchData(c: SlideRegionData) {
     mergeTo(defaultSlideRegionData(), c)
-    handler?.updateState()
+    localData.set(c)
   }
 
-  const handler = useHandler(data, events, config, () => {
+  const localEvents: Writable<SlideRegionEvent> = writable({...events})
+  $: watchEvents(events)
+  function watchEvents(c: SlideRegionEvent) {
+    localEvents.set(c)
+  }
+
+  const handler = useHandler(localData, localEvents, localConfig, () => {
+    localData.set({...defaultSlideRegionData()})
     data.thumbX = 0
     data.thumbY = 0
     data.thumbWidth = 0
@@ -52,6 +64,7 @@
   })
 
   onDestroy(() => {
+    handler.unsubscribe && handler.unsubscribe()
     tileRef && tileRef.removeEventListener('dragstart', fn);
   })
 

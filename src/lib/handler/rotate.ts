@@ -10,23 +10,23 @@ import {writable, get} from 'svelte/store';
 import type {Writable} from 'svelte/store';
 
 export function useHandler(
-  data: RotateData,
-  event: RotateEvent,
-  config: RotateConfig,
+  data: Writable<RotateData> | any,
+  event: Writable<RotateEvent> | any,
+  config: Writable<RotateConfig> | any,
   clearCbs: () => void
 ) {
-  let state: Writable<{ dragLeft: number; thumbAngle: any }> = writable({dragLeft: 0, thumbAngle: data.angle || 0})
+  let state: Writable<{ dragLeft: number; thumbAngle: number; angle: number }> = writable({dragLeft: 0, thumbAngle: get(data).angle || 0, angle: get(data).angle})
   let isFreeze: boolean = false
 
   let rootRef: HTMLElement
   let dragBlockRef: HTMLElement
   let dragBarRef: HTMLElement
 
-  const updateState = () => {
+  const unsubscribe = data.subscribe(() => {
     if(!isFreeze){
-      state.set({dragLeft: 0, thumbAngle: data.angle || 0})
+      state.set({dragLeft: 0, thumbAngle: get(data).angle || 0, angle: get(data).angle || 0})
     }
-  }
+  })
 
   const dragEvent = (e: Event|any) => {
     const touch = e.touches && e.touches[0];
@@ -36,7 +36,7 @@ export function useHandler(
     const blockWidth = dragBlockRef.offsetWidth
     const maxWidth = width - blockWidth
     const maxAngle = 360
-    const p = (maxAngle - data.angle) / maxWidth
+    const p = (maxAngle - get(state).angle) / maxWidth
 
     let angle = 0
     let isMoving = false
@@ -61,7 +61,7 @@ export function useHandler(
         left = e.clientX - startX
       }
 
-      angle = data.angle + (left * p)
+      angle = get(state).angle + (left * p)
       if (left >= maxWidth) {
         currentAngle = maxAngle
         state.set({...curState, dragLeft: maxWidth, thumbAngle: currentAngle})
@@ -69,15 +69,16 @@ export function useHandler(
       }
 
       if (left <= 0) {
-        currentAngle = data.angle
+        currentAngle = get(state).angle
         state.set({...curState, dragLeft: 0, thumbAngle: currentAngle})
         return
       }
 
       currentAngle = angle
-      state.set({thumbAngle: angle, dragLeft: left})
+      state.set({...curState, thumbAngle: angle, dragLeft: left})
 
-      event.rotate && event.rotate(angle)
+      const ec = get(event)
+      ec.rotate && ec.rotate(angle)
 
       e.cancelBubble = true
       e.preventDefault()
@@ -99,7 +100,8 @@ export function useHandler(
         return
       }
 
-      event.confirm && event.confirm(parseInt(currentAngle.toString()), () => {
+      const ec = get(event)
+      ec.confirm && ec.confirm(parseInt(currentAngle.toString()), () => {
         resetData()
       })
 
@@ -124,7 +126,7 @@ export function useHandler(
       clearEvent()
     }
 
-    const scope = config.scope
+    const scope = get(config).scope
     const dragDom = scope ? rootRef : dragBarRef
     const scopeDom = scope ? rootRef : document.body
 
@@ -173,7 +175,7 @@ export function useHandler(
   }
 
   const resetData = () => {
-    state.set({dragLeft: 0, thumbAngle: data.angle || 0})
+    state.set({dragLeft: 0, thumbAngle: get(data).angle || 0, angle: get(data).angle || 0})
   }
 
   const clearData = () => {
@@ -182,15 +184,16 @@ export function useHandler(
   }
 
   const close = () => {
-    event.close && event.close()
+    const ec = get(event)
+    ec.close && ec.close()
     resetData()
   }
 
   const refresh = () => {
-    event.refresh && event.refresh()
+    const ec = get(event)
+    ec.refresh && ec.refresh()
     resetData()
   }
-
 
   const initRefs = (
     root: HTMLElement,
@@ -205,7 +208,7 @@ export function useHandler(
   return {
     state,
     initRefs,
-    updateState,
+    unsubscribe,
     dragEvent,
     closeEvent,
     refreshEvent,

@@ -39,6 +39,11 @@ export function checkTargetFather(that: any, e: any) {
   return parent !== that
 }
 
+export function mergeOverrideTo(src: any, dest: any) {
+  for (const ccKey in src) {
+    dest[ccKey] = src[ccKey]
+  }
+}
 
 export function mergeTo(src: any, dest: any) {
   for (const ccKey in src) {

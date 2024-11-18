@@ -10,8 +10,8 @@ import {writable, get} from 'svelte/store';
 import type {Writable} from 'svelte/store';
 
 export const useHandler = (
-  _data: ClickData,
-  event: ClickEvent,
+  _data: Writable<ClickData> | any,
+  event: Writable<ClickEvent> | any,
   clearCbs: () => void
 ) => {
   let dots: Writable<any[]> = writable([])
@@ -36,7 +36,8 @@ export const useHandler = (
     const index = d.length
     dots.set([...d, {key: date.getTime(), index: index + 1, x: xx, y: yy}])
 
-    event.click && event.click(xx, yy)
+    const ec = get(event)
+    ec.click && ec.click(xx, yy)
     e.cancelBubble = true
     e.preventDefault()
     return false
@@ -44,7 +45,8 @@ export const useHandler = (
 
   const confirmEvent = (e: Event|any) => {
     let ds: Array<ClickDot> = get(dots)
-    event.confirm && event.confirm(ds, () => {
+    const ec = get(event)
+    ec.confirm && ec.confirm(ds, () => {
       dots.set([])
     })
     e.cancelBubble = true
@@ -76,12 +78,14 @@ export const useHandler = (
   }
 
   const close = () => {
-    event.close && event.close()
+    const ec = get(event)
+    ec.close && ec.close()
     resetData()
   }
 
   const refresh = () => {
-    event.refresh && event.refresh()
+    const ec = get(event)
+    ec.refresh && ec.refresh()
     resetData()
   }
 

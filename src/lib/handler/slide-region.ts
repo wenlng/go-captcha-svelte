@@ -10,23 +10,23 @@ import {writable, get} from 'svelte/store';
 import type {Writable} from 'svelte/store';
 
 export function useHandler(
-  data: SlideRegionData,
-  event: SlideRegionEvent,
-  config: SlideRegionConfig,
+  data: Writable<SlideRegionData> | any,
+  event: Writable<SlideRegionEvent> | any,
+  config: Writable<SlideRegionConfig> | any,
   clearCbs: () => void
 ) {
-  const state: Writable<{ x: number; y: number }> = writable({x: data.thumbX || 0, y: data.thumbY || 0})
+  const state: Writable<{ x: number; y: number }> = writable({x: get(data).thumbX || 0, y: get(data).thumbY || 0})
   let isFreeze: boolean = false
 
   let rootRef: HTMLElement
   let containerRef: HTMLElement
   let tileRef: HTMLElement
 
-  const updateState = () => {
+  const unsubscribe = data.subscribe(() => {
     if(!isFreeze){
-      state.set({x: data.thumbX || 0, y: data.thumbY || 0})
+      state.set({x: get(data).thumbX || 0, y: get(data).thumbY || 0})
     }
-  }
+  })
 
   const dragEvent = (e: Event|any) => {
     const touch = e.touches && e.touches[0];
@@ -86,7 +86,8 @@ export function useHandler(
       state.set({x: left, y: top})
       tileLeft = left
       tileTop = top
-      event.move && event.move(left, top)
+      const ec = get(event)
+      ec.move && ec.move(left, top)
 
       e.cancelBubble = true
       e.preventDefault()
@@ -107,7 +108,8 @@ export function useHandler(
         return
       }
 
-      event.confirm && event.confirm({x: tileLeft, y: tileTop}, () => {
+      const ec = get(event)
+      ec.confirm && ec.confirm({x: tileLeft, y: tileTop}, () => {
         resetData()
       })
 
@@ -132,7 +134,7 @@ export function useHandler(
       clearEvent()
     }
 
-    const scope = config.scope
+    const scope = get(config).scope
     const dragDom = scope ? rootRef : containerRef
     const scopeDom = scope ? rootRef : document.body
 
@@ -180,7 +182,7 @@ export function useHandler(
   }
 
   const resetData = () => {
-    state.set({x: data.thumbX || 0, y: data.thumbY || 0})
+    state.set({x: get(data).thumbX || 0, y: get(data).thumbY || 0})
   }
 
   const clearData = () => {
@@ -189,12 +191,14 @@ export function useHandler(
   }
 
   const close = () => {
-    event.close && event.close()
+    const ec = get(event)
+    ec.close && ec.close()
     resetData()
   }
 
   const refresh = () => {
-    event.refresh && event.refresh()
+    const ec = get(event)
+    ec.refresh && ec.refresh()
     resetData()
   }
 
@@ -207,7 +211,7 @@ export function useHandler(
   return {
     state,
     initRefs,
-    updateState,
+    unsubscribe,
     dragEvent,
     closeEvent,
     refreshEvent,

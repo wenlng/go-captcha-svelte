@@ -1,29 +1,42 @@
 <script lang="ts">
   import type {ClickConfig, ClickEvent, ClickData} from  "../types/click";
-  import {defaultConfig} from  "../types/click";
+  import {defaultConfig, defaultData} from "../types/click";
   import {useHandler} from "../handler/click";
 
   import LoadingIcon from "../assets/icons/LoadingIcon.svelte";
   import CloseIcon from "../assets/icons/CloseIcon.svelte";
   import RefreshIcon from "../assets/icons/RefreshIcon.svelte";
   import {mergeTo} from "../helper/helper";
+  import {writable, get} from "svelte/store";
+  import type {Writable} from 'svelte/store';
 
   export let config:ClickConfig = defaultConfig()
-  export let data:ClickData = { image: "", thumb: "" }
+  export let data:ClickData = defaultData()
   export let events:ClickEvent = {}
 
+  const localConfig: Writable<ClickConfig> = writable({...config})
   $: watchConfig(config)
   function watchConfig(c: ClickConfig) {
     mergeTo(defaultConfig(), c)
+    localConfig.set(c)
   }
 
+  const localData: Writable<ClickData> = writable({...data})
   $: watchData(data)
   function watchData(c: ClickData) {
-    mergeTo({ image: "", thumb: "" }, c)
+    mergeTo(defaultData(), c)
+    localData.set(c)
   }
 
-  const handler = useHandler(data, events, () => {
-    data.thumb =''
+  const localEvents: Writable<ClickEvent> = writable({...events})
+  $: watchEvents(events)
+  function watchEvents(c: ClickEvent) {
+    localEvents.set(c)
+  }
+
+  const handler = useHandler(localData, localEvents, () => {
+    localData.set({...defaultData()})
+    data.thumb = ''
     data.image = ''
   })
 

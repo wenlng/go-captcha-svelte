@@ -38,7 +38,6 @@ export interface ClickEvent {
   confirm?:(dots: Array<ClickDot>, clear:(fn: Function) => void) => void;
 }
 
-
 export const defaultConfig = ():ClickConfig => ({
   width: 300,
   height: 220,
@@ -51,4 +50,9 @@ export const defaultConfig = ():ClickConfig => ({
   buttonText: "确认",
   iconSize: 22,
   dotSize: 24,
+})
+
+export const defaultData = (): ClickData => ({
+  thumb: '',
+  image: ''
 })

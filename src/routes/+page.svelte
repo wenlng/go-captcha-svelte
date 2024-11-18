@@ -215,7 +215,7 @@
 
     setTimeout(() => {
       // rotateRef?.reset()
-      // rotateRef?.clear()
+      rotateRef?.clear()
       // rotateRef?.refresh()
       // rotateRef?.close()
     }, 3000)

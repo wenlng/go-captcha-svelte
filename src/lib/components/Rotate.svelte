@@ -10,27 +10,39 @@
   import RefreshIcon from "../assets/icons/RefreshIcon.svelte";
   import ArrowsIcon from "../assets/icons/ArrowsIcon.svelte";
   import {mergeTo} from "../helper/helper";
+  import {writable} from "svelte/store";
+  import type {Writable} from 'svelte/store';
 
   export let config:RotateConfig = defaultConfig()
   export let data:RotateData = defaultRotateData()
   export let events:RotateEvent = {}
 
+  const localConfig: Writable<RotateConfig> = writable({...config})
   $: watchConfig(config)
   function watchConfig(c: RotateConfig) {
     mergeTo(defaultConfig(), c)
+    localConfig.set(c)
   }
 
+  const localData: Writable<RotateData> = writable({...data})
   $: watchData(data)
   function watchData(c: RotateData) {
     mergeTo(defaultRotateData(), c)
-    handler?.updateState()
+    localData.set(c)
+  }
+
+  const localEvents: Writable<RotateEvent> = writable({...events})
+  $: watchEvents(events)
+  function watchEvents(c: RotateEvent) {
+    localEvents.set(c)
   }
 
   let rootRef: HTMLElement
   let dragBarRef: HTMLElement
   let dragBlockRef: HTMLElement
 
-  const handler = useHandler(data, events, config, () => {
+  const handler = useHandler(localData, localEvents, localConfig, () => {
+    localData.set({...defaultRotateData()})
     data.angle = 0
     data.image = ""
     data.thumb = ""
@@ -50,6 +62,7 @@
   })
 
   onDestroy(() => {
+    handler.unsubscribe && handler.unsubscribe()
     dragBlockRef && dragBlockRef.removeEventListener('dragstart', fn);
   })
 
@@ -62,7 +75,8 @@
   $: wrapperStyle = `width: ${width}px; padding: ${config.verticalPadding || 0}px ${config.horizontalPadding || 0}px; display: ${hasDisplayWrapperState ? 'block' : 'none'}`
   $: bodyStyle = `width: ${config.width}px; height: ${config.height}px;`
   $: bodyBlockStyle = `width: ${size}px, height: ${size}px`
-  $: imageStyle = `width: ${config.size}px; height: ${config.size}px; display: ${hasDisplayImageState ? 'block' : 'none'}`
+  $: imageStyle = `width: ${config.size}px; height: ${config.size}px`
+  $: displayStyle = `display: ${hasDisplayImageState ? 'block' : 'none'}`
   $: thumbStyle = `transform: rotate(${$state.thumbAngle}deg); visibility: ${hasDisplayImageState ? 'visible' : 'hidden'}`
   $: dragStyle = `left: ${$state.dragLeft}px`
 
@@ -104,6 +118,7 @@
       >
         <img
           class={`${data.image === '' ? 'gc-hide' : ''}`}
+          style="{displayStyle}"
           src={data.image}
           alt=""
         />

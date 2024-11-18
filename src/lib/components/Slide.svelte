@@ -10,20 +10,31 @@
   import RefreshIcon from "../assets/icons/RefreshIcon.svelte";
   import ArrowsIcon from "../assets/icons/ArrowsIcon.svelte";
   import {mergeTo} from "../helper/helper";
+  import {writable} from "svelte/store";
+  import type {Writable} from 'svelte/store';
 
   export let config:SlideConfig = defaultConfig()
   export let data:SlideData = defaultSlideData()
   export let events:SlideEvent = {}
 
+  const localConfig: Writable<SlideConfig> = writable({...config})
   $: watchConfig(config)
   function watchConfig(c: SlideConfig) {
     mergeTo(defaultConfig(), c)
+    localConfig.set(c)
   }
 
+  const localData: Writable<SlideData> = writable({...data})
   $: watchData(data)
   function watchData(c: SlideData) {
     mergeTo(defaultSlideData(), c)
-    handler?.updateState()
+    localData.set(c)
+  }
+
+  const localEvents: Writable<SlideEvent> = writable({...events})
+  $: watchEvents(events)
+  function watchEvents(c: SlideEvent) {
+    localEvents.set(c)
   }
 
   let rootRef: HTMLElement
@@ -32,7 +43,8 @@
   let containerRef: HTMLElement
   let tileRef: HTMLElement
 
-  const handler = useHandler(data, events, config, () => {
+  const handler = useHandler(localData, localEvents, localConfig, () => {
+    localData.set({...defaultSlideData()})
     data.thumbX = 0
     data.thumbY = 0
     data.thumbWidth = 0
@@ -55,6 +67,7 @@
   })
 
   onDestroy(() => {
+    handler.unsubscribe && handler.unsubscribe()
     dragBlockRef && dragBlockRef.removeEventListener('dragstart', fn);
   })
 
