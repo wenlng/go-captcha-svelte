@@ -1,10 +1,10 @@
 {
 	"name": "go-captcha-svelte",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"license": "MIT",
 	"email": "wengaolng@gmail.com",
 	"author": "Awen <wengaolng@gmail.com>",
-	"description": "This is the svelte package for go-captcha",
+	"description": "GoCaptcha for Svelte, which implements click mode, slider mode, drag-drop mode and rotation mode.",
 	"keywords": [
 		"go-captcha-svelte",
 		"go-captcha",

@@ -31,6 +31,10 @@ export function useHandler(
   })
 
   const dragEvent = (e: Event|any) => {
+    if (!checkTargetFather(dragBarRef, e)) {
+      return
+    }
+
     const touch = e.touches && e.touches[0];
     const offsetLeft = dragBlockRef.offsetLeft
     const width = containerRef.offsetWidth
@@ -93,12 +97,12 @@ export function useHandler(
         return
       }
 
+      clearEvent()
       if (!isMoving) {
         return
       }
 
       isMoving = false
-      clearEvent()
 
       if (currentThumbX < 0) {
         return

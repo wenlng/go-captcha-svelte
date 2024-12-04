@@ -29,6 +29,10 @@ export function useHandler(
   })
 
   const dragEvent = (e: Event|any) => {
+    if (!checkTargetFather(dragBarRef, e)) {
+      return
+    }
+
     const touch = e.touches && e.touches[0];
 
     const offsetLeft = dragBlockRef.offsetLeft
@@ -89,12 +93,12 @@ export function useHandler(
         return
       }
 
+      clearEvent()
       if (!isMoving) {
         return
       }
 
       isMoving = false
-      clearEvent()
 
       if (currentAngle < 0) {
         return
