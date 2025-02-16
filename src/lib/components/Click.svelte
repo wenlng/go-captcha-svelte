@@ -49,7 +49,7 @@
 
   $: width = (config.width || 0) + ( (config.horizontalPadding || 0) * 2) + (config.showTheme ? 2 : 0)
   $: hasDisplayWrapperState = (config.width || 0) > 0 || (config.height || 0) > 0
-  $: hasDisplayImageState = data.image != '' || data.thumb != ''
+  $: hasDisplayImageState = (data.image && data.image.length > 0) || (data.thumb && data.thumb.length > 0)
 
   $: wrapperClass = config.showTheme ? 'gc-theme' : ''
   $: wrapperStyle = `width: ${width}px; padding: ${config.verticalPadding || 0}px ${config.horizontalPadding || 0}px; display: ${hasDisplayWrapperState ? 'block' : 'none'}`
@@ -124,9 +124,10 @@
         z-index: 2;
         width: 22px;
         height: 22px;
-        color: #cedffe;
-        background: #3e7cff;
+        color: var(--go-captcha-theme-dot-color);
+        background:  var(--go-captcha-theme-dot-bg-color);
         border: 3px solid #f7f9fb;
+        border-color: var(--go-captcha-theme-dot-border-color);
         display:-webkit-box;
         display:-webkit-flex;
         display:-ms-flexbox;

@@ -175,9 +175,9 @@
 
 
   const rotateData = {
-    angle: 20,
     image: rotateImage,
     thumb: rotateThumb,
+    thumbSize: 195
   }
 
   const rotateConfig = {
@@ -193,13 +193,13 @@
       console.log("angle >>>>>>>", angle)
       setTimeout(() => {
         clear()
-      }, 100)
+      }, 1000)
     },
     refresh(): void {
       console.log("refresh >>>>>>>")
       rotateData.image = clickImage2
       rotateData.thumb = rotateThumb
-      rotateData.angle = 30
+      rotateData.thumbSize = 190
     },
     close(): void {
       console.log("close >>>>>>>")
@@ -213,12 +213,12 @@
     //   rotateConfig.height =500
     // }, 2000)
 
-    setTimeout(() => {
-      // rotateRef?.reset()
-      rotateRef?.clear()
-      // rotateRef?.refresh()
-      // rotateRef?.close()
-    }, 3000)
+    // setTimeout(() => {
+    //   // rotateRef?.reset()
+    //   rotateRef?.clear()
+    //   // rotateRef?.refresh()
+    //   // rotateRef?.close()
+    // }, 3000)
   })
 </script>
 

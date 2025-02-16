@@ -70,7 +70,7 @@
 
   $: width = (config.width || 0) + ( (config.horizontalPadding || 0) * 2) + (config.showTheme ? 2 : 0)
   $: hasDisplayWrapperState = (config.width || 0) > 0 || (config.height || 0) > 0
-  $: hasDisplayImageState = data.image != '' || data.thumb != ''
+  $: hasDisplayImageState = (data.image && data.image.length > 0) || (data.thumb && data.thumb.length > 0)
 
   $: wrapperClass = config.showTheme ? 'gc-theme' : ''
   $: wrapperStyle = `width: ${width}px; padding: ${config.verticalPadding || 0}px ${config.horizontalPadding || 0}px; display: ${hasDisplayWrapperState ? 'block' : 'none'}`

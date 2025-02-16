@@ -69,7 +69,7 @@
   $: width = (config.width || 0) + ( (config.horizontalPadding || 0) * 2) + (config.showTheme ? 2 : 0)
   $: size = (config.size || 0) > 0 ? config.size : defaultConfig().size
   $: hasDisplayWrapperState = (config.width || 0) > 0 || (config.height || 0) > 0
-  $: hasDisplayImageState = data.image != '' || data.thumb != ''
+  $: hasDisplayImageState = (data.image && data.image.length > 0) || (data.thumb && data.thumb.length > 0)
 
   $: wrapperClass = config.showTheme ? 'gc-theme' : ''
   $: wrapperStyle = `width: ${width}px; padding: ${config.verticalPadding || 0}px ${config.horizontalPadding || 0}px; display: ${hasDisplayWrapperState ? 'block' : 'none'}`
@@ -77,7 +77,8 @@
   $: bodyBlockStyle = `width: ${size}px, height: ${size}px`
   $: imageStyle = `width: ${config.size}px; height: ${config.size}px`
   $: displayStyle = `display: ${hasDisplayImageState ? 'block' : 'none'}`
-  $: thumbStyle = `transform: rotate(${$state.thumbAngle}deg); visibility: ${hasDisplayImageState ? 'visible' : 'hidden'}`
+  $: thumbStyle = `transform: rotate(${$state.thumbAngle}deg); visibility: ${hasDisplayImageState ? 'visible' : 'hidden'}; ${data.thumbSize > 0 ? 'width:' + data.thumbSize + 'px; height:' + data.thumbSize + 'px' : ''};`
+
   $: dragStyle = `left: ${$state.dragLeft}px`
 
 </script>
@@ -213,6 +214,14 @@
     left: 0;
     right: 0;
     bottom: 0;
+
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     img {
       max-width: 100%;
