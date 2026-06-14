@@ -107,22 +107,25 @@
     <div class="gc-loading">
       <LoadingIcon />
     </div>
-    <img
-      class={`gc-picture ${data.image === '' ? 'gc-hide' : ''}`}
-      style={imageStyle}
-      src={data.image}
-      alt=""
-    />
+    {#if data.image}
+      <img
+        class="gc-picture"
+        style={imageStyle}
+        src={data.image}
+        alt=""
+      />
+    {/if}
     <div
       class:gc-tile={true}
       bind:this={tileRef}
       style={thumbStyle}
     >
-      <img
-        class={`${data.thumb === '' ? 'gc-hide' : ''}`}
-        src={data.thumb}
-        alt=""
-      />
+      {#if data.thumb}
+        <img
+          src={data.thumb}
+          alt=""
+        />
+      {/if}
     </div>
   </div>
   <div class="gc-footer">

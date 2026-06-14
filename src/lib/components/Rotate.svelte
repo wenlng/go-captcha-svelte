@@ -117,12 +117,12 @@
         class:gc-rotate-picture={true}
         style={imageStyle}
       >
-        <img
-          class={`${data.image === '' ? 'gc-hide' : ''}`}
-          style="{displayStyle}"
-          src={data.image}
-          alt=""
-        />
+        {#if data.image}
+          <img
+            src={data.image}
+            alt=""
+          />
+        {/if}
         <div class="gc-round"></div>
       </div>
       <div class="gc-thumb" class:gc-rotate-thumb={true}>
@@ -130,11 +130,12 @@
           class:gc-rotate-thumb-block={true}
           style={thumbStyle}
         >
-          <img
-            class={`${data.thumb === '' ? 'gc-hide' : ''}`}
-            src={data.thumb}
-            alt=""
-          />
+          {#if data.thumb}
+            <img
+              src={data.thumb}
+              alt=""
+            />
+          {/if}
         </div>
       </div>
     </div>

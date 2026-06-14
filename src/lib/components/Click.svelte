@@ -61,24 +61,27 @@
 <div class={`go-captcha gc-wrapper ${wrapperClass}`} style={wrapperStyle} >
   <div class="gc-header">
     <span>{ config.title }</span>
-    <img
-      class={data.thumb === '' ? 'gc-hide' : ''}
-      style={thumbStyle}
-      src={data.thumb}
-      alt=""
-    />
+    {#if data.thumb}
+      <img
+        style={thumbStyle}
+        src={data.thumb}
+        alt=""
+      />
+    {/if}
   </div>
   <div class="gc-body" style={bodyStyle}>
     <div class="gc-loading">
       <LoadingIcon />
     </div>
-    <img
-      style={imageStyle}
-      class={`gc-picture ${data.image === '' ? 'gc-hide' : ''}`}
-      src={data.image}
-      alt=""
-      on:click={handler.clickEvent}
-    />
+    {#if data.image}
+      <img
+        style={imageStyle}
+        class="gc-picture"
+        src={data.image}
+        alt=""
+        on:click={handler.clickEvent}
+      />
+    {/if}
     <div class:gc-dots={true}>
       {#each $dots as dot}
       <div
